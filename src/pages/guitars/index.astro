@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import Listing from '../../components/Listing.astro';
+import type { ListingItem } from '../../components/Listing.astro';
+import { getGuitars, guitarUrl } from '../../lib/items';
+import { GUITAR_TYPES, CONDITIONS } from '../../config';
+
+const guitars = await getGuitars();
+const items: ListingItem[] = guitars.map((g) => ({
+  id: g.id,
+  href: guitarUrl(g),
+  make: g.data.make,
+  model: g.data.model,
+  price: g.data.price,
+  grade: g.data.grade,
+  status: g.data.status,
+  photo: g.data.photos[0],
+  draft: g.data.draft,
+  added: g.data.added.getTime(),
+  facets: { type: g.data.type, brand: g.data.make.toLowerCase(), condition: g.data.condition },
+}));
+
+const brands = Array.from(new Set(guitars.map((g) => g.data.make))).sort();
+const facets = [
+  { key: 'type', label: 'Type', options: Object.entries(GUITAR_TYPES) as [string, string][] },
+  { key: 'condition', label: 'Condition', options: Object.entries(CONDITIONS) as [string, string][] },
+  ...(brands.length > 1 ? [{ key: 'brand', label: 'Brand', options: brands.map((b) => [b.toLowerCase(), b] as [string, string]) }] : []),
+];
+---
+
+<Base title="Guitars in stock" description="Electric, acoustic, bass and classical guitars for sale in Derry, NH. Every one set up and ready to play, with honest condition notes and a full spec sheet.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Guitars</h1>
+      <p>Every guitar here has been set up and checked over before listing. Prices are as shown. Condition notes on each page say exactly what to expect.</p>
+    </header>
+    <Listing items={items} noun={['guitar', 'guitars']} facets={facets} />
+  </div>
+</Base>

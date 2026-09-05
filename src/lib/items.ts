@@ -4,7 +4,8 @@ type Guitar = CollectionEntry<'guitars'>;
 type Equipment = CollectionEntry<'equipment'>;
 
 // Drafts show in `npm run dev` and are left out of the build.
-const showDrafts = import.meta.env.DEV;
+// Set SHOW_DRAFTS=1 when building to include drafts in a preview build.
+const showDrafts = import.meta.env.DEV || import.meta.env.SHOW_DRAFTS === '1';
 
 export async function getGuitars(): Promise<Guitar[]> {
   const all = await getCollection('guitars', ({ data }) => showDrafts || !data.draft);

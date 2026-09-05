@@ -18,8 +18,12 @@ interface Props {
   // Extra data attributes for client-side filtering.
   data?: Record<string, string | number>;
   eager?: boolean;
+  // Heading level for the card title, so the heading order stays correct on
+  // each page: h2 under a page title, h3 under a section heading.
+  headingLevel?: 'h2' | 'h3';
 }
-const { href, make, model, price, grade, status, photo, draft = false, data = {}, eager = false } = Astro.props;
+const { href, make, model, price, grade, status, photo, draft = false, data = {}, eager = false, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
 const dataAttrs = Object.fromEntries(Object.entries(data).map(([k, v]) => [`data-${k}`, String(v)]));
 ---
 
@@ -47,7 +51,7 @@ const dataAttrs = Object.fromEntries(Object.entries(data).map(([k, v]) => [`data
   </div>
   <div class="card-body">
     <p class="card-make">{make}</p>
-    <h3 class="card-title"><a href={href}>{model}<span class="visually-hidden">, {make}</span></a></h3>
+    <Heading class="card-title"><a href={href}>{model}<span class="visually-hidden">, {make}</span></a></Heading>
     <div class="card-meta">
       <span class="tag tag-grade">{GRADES[grade].label}</span>
       <span class="card-price tnum">{status === 'sold' ? <del>{formatPrice(price)}</del> : formatPrice(price)}</span>

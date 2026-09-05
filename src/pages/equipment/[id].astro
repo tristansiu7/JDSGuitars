@@ -1,0 +1,75 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Detail from '../../layouts/Detail.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getEquipment, equipmentTitle, itemRef, equipmentUrl } from '../../lib/items';
+import { EQUIPMENT_CATEGORIES, CONDITIONS } from '../../config';
+import { formatPrice } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const gear = await getEquipment();
+  return gear.map((item) => ({ params: { id: item.id }, props: { item, gear } }));
+}
+
+const { item, gear } = Astro.props;
+const { data } = item;
+const { Content } = await render(item);
+const name = equipmentTitle(item);
+const ref = itemRef(item);
+const categoryLabel = EQUIPMENT_CATEGORIES[data.category];
+const metaLine = [data.year ? String(data.year) : null, categoryLabel, CONDITIONS[data.condition]].filter(Boolean) as string[];
+
+const specs: [string, string | number | undefined | null][] = [
+  ['Year', data.year],
+  ['Brand', data.brand],
+  ['Model', data.model],
+  ['Serial', data.serial],
+  ...Object.entries(data.specs),
+  ['Included', data.included],
+];
+
+const description = `${name}, ${metaLine.join(', ').toLowerCase()}, ${formatPrice(data.price)}${data.summary ? `. ${data.summary}` : ''}. For sale at JDS Guitars, Derry NH.`;
+const og = data.photos[0] ? await getImage({ src: data.photos[0].src, width: 1200, height: 630, fit: 'cover', format: 'jpeg' }) : null;
+const related = gear.filter((g) => g.id !== item.id && g.data.category === data.category && g.data.status !== 'sold').slice(0, 4);
+---
+
+<Detail
+  kind="equipment"
+  crumbs={[['/equipment/', 'Equipment'], [`/equipment/?category=${data.category}`, categoryLabel]]}
+  make={data.brand}
+  model={data.model}
+  name={name}
+  metaLine={metaLine}
+  ref={ref}
+  price={data.price}
+  status={data.status}
+  grade={data.grade}
+  condition={data.condition}
+  summary={data.summary}
+  caseIncluded={data.included}
+  photos={data.photos}
+  specs={specs}
+  setupNotes={data.setupNotes}
+  repairHistory={data.repairHistory}
+  draft={data.draft}
+  description={description}
+  ogImage={og?.src}
+  brand={data.brand}
+  categoryLabel={categoryLabel}
+>
+  <Fragment slot="condition"><Content /></Fragment>
+  {related.length > 0 && (
+    <section class="wrap section" slot="related" aria-labelledby="related-h">
+      <div class="section-head">
+        <h2 id="related-h">More in {categoryLabel.toLowerCase()}</h2>
+        <a href={`/equipment/?category=${data.category}`}>All {categoryLabel.toLowerCase()}</a>
+      </div>
+      <div class="grid grid-cards">
+        {related.map((g) => (
+          <ItemCard href={equipmentUrl(g)} make={g.data.brand} model={g.data.model} price={g.data.price} grade={g.data.grade} status={g.data.status} photo={g.data.photos[0]} draft={g.data.draft} />
+        ))}
+      </div>
+    </section>
+  )}
+</Detail>

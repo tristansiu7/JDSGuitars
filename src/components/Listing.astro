@@ -1,0 +1,280 @@
+---
+// Filterable, sortable listing used by the guitars and equipment pages.
+// Everything renders server-side; the script only hides, shows and sorts,
+// so the page works without JavaScript (all items shown).
+import ItemCard from './ItemCard.astro';
+import type { ImageMetadata } from 'astro';
+import type { Grade } from '../config';
+
+export interface ListingItem {
+  id: string;
+  href: string;
+  make: string;
+  model: string;
+  price: number;
+  grade: Grade;
+  status: 'available' | 'on-hold' | 'sold';
+  photo?: { src: ImageMetadata; alt: string };
+  draft: boolean;
+  added: number;
+  facets: Record<string, string>;
+}
+
+interface Props {
+  items: ListingItem[];
+  // Singular and plural nouns for the count line, e.g. ['guitar', 'guitars']
+  noun: [string, string];
+  // Facets to filter on, in display order. Options are [value, label].
+  facets: { key: string; label: string; options: [string, string][] }[];
+}
+const { items, noun, facets } = Astro.props;
+const live = items.filter((i) => i.status !== 'sold');
+const soldCount = items.length - live.length;
+const prices = live.map((i) => i.price);
+const minPrice = prices.length ? Math.floor(Math.min(...prices)) : 0;
+const maxPrice = prices.length ? Math.ceil(Math.max(...prices)) : 0;
+---
+
+<div class="listing" data-listing data-noun-one={noun[0]} data-noun-many={noun[1]}>
+  <form class="filters" data-filters aria-label={`Filter and sort ${noun[1]}`}>
+    {facets.map((f) => (
+      <fieldset>
+        <legend>{f.label}</legend>
+        {f.options.map(([value, label]) => (
+          <label class="choice">
+            <input type="checkbox" name={f.key} value={value} />
+            <span>{label}</span>
+          </label>
+        ))}
+      </fieldset>
+    ))}
+    <fieldset>
+      <legend>Price</legend>
+      <div class="price-inputs">
+        <label>
+          <span class="small">From</span>
+          <input type="number" name="min" min="0" step="1" inputmode="numeric" placeholder={String(minPrice)} />
+        </label>
+        <label>
+          <span class="small">To</span>
+          <input type="number" name="max" min="0" step="1" inputmode="numeric" placeholder={String(maxPrice)} />
+        </label>
+      </div>
+    </fieldset>
+    <div class="field">
+      <label for="sort">Sort by</label>
+      <select id="sort" name="sort">
+        <option value="newest">Newest first</option>
+        <option value="price-asc">Price, low to high</option>
+        <option value="price-desc">Price, high to low</option>
+        <option value="name">Make and model</option>
+      </select>
+    </div>
+    {soldCount > 0 && (
+      <label class="choice">
+        <input type="checkbox" name="sold" value="1" />
+        <span>Include sold ({soldCount})</span>
+      </label>
+    )}
+    <button type="button" class="button button-secondary" data-clear>Clear filters</button>
+  </form>
+
+  <div class="results">
+    <p class="count" role="status" data-count>
+      {live.length === 1 ? `1 ${noun[0]}` : `${live.length} ${noun[1]}`} in stock
+    </p>
+
+    {items.length === 0 ? (
+      <div class="empty">
+        <p>Nothing is listed right now. Stock changes often, so <a href="/contact/">message Jason</a> about what you are after and he will tell you what is coming in.</p>
+      </div>
+    ) : (
+      <Fragment>
+        <div class="grid grid-cards" data-items>
+          {items.map((item, i) => (
+            <ItemCard
+              href={item.href}
+              make={item.make}
+              model={item.model}
+              price={item.price}
+              grade={item.grade}
+              status={item.status}
+              photo={item.photo}
+              draft={item.draft}
+              eager={i < 4}
+              headingLevel="h2"
+              data={{ ...item.facets, price: item.price, status: item.status, added: item.added, name: `${item.make} ${item.model}`.toLowerCase() }}
+            />
+          ))}
+        </div>
+        <div class="empty" data-empty hidden>
+          <p>No {noun[1]} match those filters.</p>
+          <p><button type="button" class="button button-secondary" data-clear>Clear the filters</button> or <a href="/contact/">message Jason</a> about what you are looking for. He can often find it.</p>
+        </div>
+      </Fragment>
+    )}
+  </div>
+</div>
+
+<script>
+  const roots = document.querySelectorAll<HTMLElement>('[data-listing]');
+  roots.forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('[data-filters]');
+    const grid = root.querySelector<HTMLElement>('[data-items]');
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    if (!form || !grid || !count) return;
+    const cards = Array.from(grid.children) as HTMLElement[];
+    const nounOne = root.dataset.nounOne ?? 'item';
+    const nounMany = root.dataset.nounMany ?? 'items';
+    const facetKeys = Array.from(new Set(Array.from(form.querySelectorAll<HTMLInputElement>('input[type=checkbox]')).map((i) => i.name))).filter((k) => k !== 'sold');
+
+    function readForm() {
+      const data = new FormData(form!);
+      const chosen: Record<string, string[]> = {};
+      facetKeys.forEach((k) => (chosen[k] = data.getAll(k).map(String)));
+      const min = Number(data.get('min') || 0);
+      const maxRaw = data.get('max');
+      const max = maxRaw ? Number(maxRaw) : Infinity;
+      return { chosen, min, max, sort: String(data.get('sort') || 'newest'), sold: data.get('sold') === '1' };
+    }
+
+    function apply() {
+      const { chosen, min, max, sort, sold } = readForm();
+      let shown = 0;
+      const visible: HTMLElement[] = [];
+      cards.forEach((card) => {
+        const d = card.dataset;
+        const price = Number(d.price);
+        let ok = true;
+        for (const k of facetKeys) {
+          if (chosen[k].length && !chosen[k].includes(d[k] ?? '')) ok = false;
+        }
+        if (price < min || price > max) ok = false;
+        if (!sold && d.status === 'sold') ok = false;
+        card.hidden = !ok;
+        if (ok) {
+          shown++;
+          visible.push(card);
+        }
+      });
+      const sorted = [...cards].sort((a, b) => {
+        const rank = (c: HTMLElement) => (c.dataset.status === 'available' ? 0 : c.dataset.status === 'on-hold' ? 1 : 2);
+        if (sort === 'price-asc') return Number(a.dataset.price) - Number(b.dataset.price);
+        if (sort === 'price-desc') return Number(b.dataset.price) - Number(a.dataset.price);
+        if (sort === 'name') return (a.dataset.name ?? '').localeCompare(b.dataset.name ?? '');
+        return rank(a) - rank(b) || Number(b.dataset.added) - Number(a.dataset.added);
+      });
+      sorted.forEach((c) => grid!.appendChild(c));
+      const anyFilter = facetKeys.some((k) => chosen[k].length) || min > 0 || max !== Infinity;
+      count!.textContent = anyFilter ? `Showing ${shown} of ${cards.length} ${cards.length === 1 ? nounOne : nounMany}` : `${shown} ${shown === 1 ? nounOne : nounMany} in stock`;
+      if (empty) empty.hidden = shown !== 0;
+      grid!.hidden = shown === 0;
+      syncUrl();
+    }
+
+    function syncUrl() {
+      const params = new URLSearchParams(new FormData(form!) as unknown as Record<string, string>);
+      for (const [k, v] of Array.from(params.entries())) if (v === '' || (k === 'sort' && v === 'newest')) params.delete(k);
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+    }
+
+    function fromUrl() {
+      const params = new URLSearchParams(location.search);
+      form!.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach((box) => {
+        box.checked = params.getAll(box.name).includes(box.value);
+      });
+      const min = form!.elements.namedItem('min') as HTMLInputElement | null;
+      const max = form!.elements.namedItem('max') as HTMLInputElement | null;
+      const sort = form!.elements.namedItem('sort') as HTMLSelectElement | null;
+      if (min) min.value = params.get('min') ?? '';
+      if (max) max.value = params.get('max') ?? '';
+      if (sort) sort.value = params.get('sort') ?? 'newest';
+    }
+
+    form.addEventListener('input', apply);
+    form.addEventListener('change', apply);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      apply();
+    });
+    root.querySelectorAll<HTMLButtonElement>('[data-clear]').forEach((button) =>
+      button.addEventListener('click', () => {
+        form.reset();
+        apply();
+        (form.querySelector('input, select') as HTMLElement | null)?.focus();
+      })
+    );
+    fromUrl();
+    apply();
+  });
+</script>
+
+<style>
+  .listing {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .listing {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      gap: 3rem;
+    }
+  }
+  .filters {
+    display: grid;
+    gap: 1.25rem;
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    padding: 1.25rem;
+    align-content: start;
+  }
+  @media (min-width: 900px) {
+    .filters {
+      position: sticky;
+      top: 1rem;
+    }
+  }
+  @media (max-width: 899px) {
+    .filters {
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      gap: 1rem 1.5rem;
+    }
+    .filters > .button {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+  }
+  .price-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .price-inputs label {
+    display: grid;
+    gap: 0.2rem;
+    font-weight: 400;
+  }
+  .price-inputs input {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    font: inherit;
+    border: 1px solid var(--walnut);
+    border-radius: var(--radius);
+    background: var(--sheet);
+    color: var(--rosewood);
+  }
+  .filters .field select {
+    padding: 0.5rem 0.6rem;
+  }
+  .count {
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .results .grid[hidden],
+  .results .empty[hidden] {
+    display: none;
+  }
+</style>

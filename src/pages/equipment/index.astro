@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import Listing from '../../components/Listing.astro';
+import type { ListingItem } from '../../components/Listing.astro';
+import { getEquipment, equipmentUrl } from '../../lib/items';
+import { EQUIPMENT_CATEGORIES, CONDITIONS } from '../../config';
+
+const gear = await getEquipment();
+const items: ListingItem[] = gear.map((e) => ({
+  id: e.id,
+  href: equipmentUrl(e),
+  make: e.data.brand,
+  model: e.data.model,
+  price: e.data.price,
+  grade: e.data.grade,
+  status: e.data.status,
+  photo: e.data.photos[0],
+  draft: e.data.draft,
+  added: e.data.added.getTime(),
+  facets: { category: e.data.category, brand: e.data.brand.toLowerCase(), condition: e.data.condition },
+}));
+const brands = Array.from(new Set(gear.map((e) => e.data.brand))).sort();
+const facets = [
+  { key: 'category', label: 'Category', options: Object.entries(EQUIPMENT_CATEGORIES) as [string, string][] },
+  { key: 'condition', label: 'Condition', options: Object.entries(CONDITIONS) as [string, string][] },
+  ...(brands.length > 1 ? [{ key: 'brand', label: 'Brand', options: brands.map((b) => [b.toLowerCase(), b] as [string, string]) }] : []),
+];
+---
+
+<Base title="Other equipment" description="Amps, pedals, drums, keys, PA gear, strings and accessories for sale in Derry, NH, checked over and priced honestly.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Other equipment</h1>
+      <p>Amps, pedals, drums, keys, PA gear, strings and accessories. Checked over before listing, with the condition described on each page.</p>
+    </header>
+    <Listing items={items} noun={['item', 'items']} facets={facets} />
+  </div>
+</Base>
