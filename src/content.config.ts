@@ -1,9 +1,10 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, type SchemaContext } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 // Shared pieces --------------------------------------------------------------
 
-const photo = (image: () => z.ZodTypeAny) =>
+const photo = (image: SchemaContext['image']) =>
   z.object({
     // Path relative to the item's folder, e.g. ./front.jpg
     src: image(),
@@ -13,7 +14,7 @@ const photo = (image: () => z.ZodTypeAny) =>
 
 const money = z.number().nonnegative();
 
-const common = (image: () => z.ZodTypeAny) => ({
+const common = (image: SchemaContext['image']) => ({
   // Stock reference shown on the page and carried into the contact form.
   // Leave it out and the folder name is used.
   ref: z.string().optional(),

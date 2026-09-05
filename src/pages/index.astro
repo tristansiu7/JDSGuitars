@@ -1,4 +1,171 @@
 ---
 import Base from '../layouts/Base.astro';
+import ItemCard from '../components/ItemCard.astro';
+import Fact from '../components/Fact.astro';
+import { getGuitars, getEquipment, guitarUrl, equipmentUrl } from '../lib/items';
+import { BUSINESS, ADDRESS_LINE, MAP_LINK } from '../config';
+import { getCollection } from 'astro:content';
+import { formatPrice } from '../lib/format';
+
+const guitars = (await getGuitars()).filter((g) => g.data.status !== 'sold');
+const gear = (await getEquipment()).filter((e) => e.data.status !== 'sold');
+const featured = guitars.slice(0, 8);
+const featuredGear = gear.slice(0, 4);
+const setup = (await getCollection('repairs')).find((r) => r.id === 'setup');
 ---
-<Base title="JDS Guitars" description="placeholder"><div class="wrap"><h1>Home (in progress)</h1></div></Base>
+
+<Base title={BUSINESS.name} description={`${BUSINESS.shortDescription} Guitars in stock, a priced repair list, and rentals. ${ADDRESS_LINE}.`}>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>JDS Guitars</h1>
+        <p class="lede">Set-up, ready-to-play guitars sold from a home workshop in Derry, New Hampshire. Repairs and setups too.</p>
+        <p>Many of the guitars are Sweetwater open-box demos or returns that needed a setup or a blemish repaired. That is where the saving comes from. Nothing is listed until it has been set up and played.</p>
+        <div class="button-row">
+          <a class="button" href="/guitars/">See what is in stock</a>
+          <a class="button button-secondary" href="/repairs/">Book a repair</a>
+        </div>
+      </div>
+      <div class="where sheet">
+        <h2>Where and when</h2>
+        <p><a href={MAP_LINK} rel="noopener">{ADDRESS_LINE}</a></p>
+        <p>This is Jason's home, not a shop. Message or phone first and he will arrange a time for you to come and play.</p>
+        <ul class="plain">
+          {BUSINESS.hours.map((h) => <li><Fact value={h} /></li>)}
+        </ul>
+        <p class="small">Phone: <Fact value={BUSINESS.phone} /><br />Email: <Fact value={BUSINESS.email} /></p>
+        <p><a href="/contact/">Contact and directions</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="stock-h">
+    <div class="section-head">
+      <h2 id="stock-h">In stock now</h2>
+      {guitars.length > 0 && <a href="/guitars/">All {guitars.length} {guitars.length === 1 ? 'guitar' : 'guitars'}</a>}
+    </div>
+    {featured.length > 0 ? (
+      <div class="grid grid-cards">
+        {featured.map((g, i) => (
+          <ItemCard href={guitarUrl(g)} make={g.data.make} model={g.data.model} price={g.data.price} grade={g.data.grade} status={g.data.status} photo={g.data.photos[0]} draft={g.data.draft} eager={i < 4} />
+        ))}
+      </div>
+    ) : (
+      <div class="empty">
+        <p>No guitars are listed at the moment. Stock turns over quickly and new arrivals go up as soon as they are set up.</p>
+        <p><a href="/contact/">Message Jason</a> with what you are after and a budget. He can often find it.</p>
+      </div>
+    )}
+  </section>
+
+  {featuredGear.length > 0 && (
+    <section class="wrap section" aria-labelledby="gear-h">
+      <div class="section-head">
+        <h2 id="gear-h">Other equipment</h2>
+        <a href="/equipment/">All equipment</a>
+      </div>
+      <div class="grid grid-cards">
+        {featuredGear.map((e) => (
+          <ItemCard href={equipmentUrl(e)} make={e.data.brand} model={e.data.model} price={e.data.price} grade={e.data.grade} status={e.data.status} photo={e.data.photos[0]} draft={e.data.draft} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="wrap section" aria-labelledby="how-h">
+    <div class="section-head">
+      <h2 id="how-h">How the shop works</h2>
+    </div>
+    <div class="two-col">
+      <div>
+        <h3>Where the guitars come from</h3>
+        <p>Most are open-box demos and returns from Sweetwater: guitars that were opened, tried and sent back, or that needed a setup or a small blemish repaired before they could be sold as new. Jason buys them, does that work, and sells them for less than the new price. Some are used instruments bought locally. Each listing says which.</p>
+      </div>
+      <div>
+        <h3>What "set up" means here</h3>
+        <p>Before a guitar is listed the neck relief, action, nut slots and intonation are checked and adjusted, and it gets new strings if it needs them. The listing says what was done. If something is wrong with a guitar, the listing says that too, with a photo where it helps.</p>
+      </div>
+      <div>
+        <h3>Trying one</h3>
+        <p>Message about the guitar you are interested in and Jason will set a time for you to come and play it at the house. There is no pressure and no sales floor. Bring your own guitar if you want to compare.</p>
+      </div>
+      <div>
+        <h3>After you buy</h3>
+        <p>Jason helps with setups and any issues after purchase. If the action creeps up when the weather changes, or you want to move to heavier strings, get in touch. Payment is by {BUSINESS.paymentMethods.join(', ').replace(/, ([^,]*)$/, ' or $1')}.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="services-h">
+    <h2 id="services-h" class="visually-hidden">Repairs and rentals</h2>
+    <div class="two-col">
+      <div class="sheet">
+        <h3>Repairs and setups</h3>
+        <p>
+          Setups, restrings, fret work, nut and saddle work, electronics, crack repair and finish touch-ups.
+          {setup && setup.data.price !== null ? ` A full setup is ${formatPrice(setup.data.price)}${setup.data.priceNote ? `, ${setup.data.priceNote}` : ''}.` : ''}
+        </p>
+        <a class="button button-secondary" href="/repairs/">See the price list</a>
+      </div>
+      <div class="sheet">
+        <h3>Rentals</h3>
+        <p>Gear to hire by the day or week. Rates, deposit and the terms are on the rentals page.</p>
+        <a class="button button-secondary" href="/rentals/">Ask about a rental</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    background: var(--sheet);
+    border-bottom: 1px solid var(--rule);
+    padding-block: 2.5rem 3rem;
+  }
+  .hero-grid {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 4rem;
+      padding-block: 1.5rem;
+    }
+  }
+  .hero h1 {
+    font-size: var(--fs-4xl);
+    text-transform: uppercase;
+    margin-bottom: 0.4em;
+  }
+  @media (min-width: 900px) {
+    .hero h1 {
+      font-size: var(--fs-5xl);
+    }
+  }
+  .lede {
+    font-size: var(--fs-lg);
+    line-height: 1.3;
+    font-weight: 500;
+    max-width: 30ch;
+  }
+  .where {
+    background: var(--bench);
+  }
+  .where h2 {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .where p:last-child {
+    margin-bottom: 0;
+  }
+  .plain {
+    list-style: none;
+    padding: 0;
+  }
+  .sheet h3 {
+    margin-bottom: 0.4rem;
+  }
+</style>

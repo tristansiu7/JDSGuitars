@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import Todo from '../components/Todo.astro';
+import { BUSINESS, ADDRESS_LINE, ANALYTICS_IN_USE } from '../config';
+---
+
+<Base title="Privacy policy" description="What the JDS Guitars website collects, why, how long it is kept, and who processes it. No cookies, no analytics.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Privacy policy</h1>
+      <p>This site collects very little. This page says exactly what, and why.</p>
+    </header>
+
+    <div class="prose legal">
+      <p class="small muted">Last updated: <Todo what="date this policy was finalised" /></p>
+
+      <h2>Who is responsible</h2>
+      <p>JDS Guitars, run by {BUSINESS.owner}, {ADDRESS_LINE}. Questions about your data go through the <a href="/contact/">contact page</a> or by email to <Todo what="email address" />.</p>
+
+      <h2>What the site collects</h2>
+      <p>The site only collects information when you send one of its three forms. Each form asks for:</p>
+      <ul>
+        <li><strong>Contact form:</strong> your name, email address, phone number if you give it, your message, how you would like to be contacted, and the reference of the guitar or item you are asking about if you came from its page.</li>
+        <li><strong>Repair request:</strong> your name, email address, phone number if you give it, the instrument, a description of the problem, and how you would like to be contacted.</li>
+        <li><strong>Rental enquiry:</strong> your name, email address, phone number if you give it, what you want to rent, the dates, and any notes.</li>
+      </ul>
+      <p>Browsing the site sends nothing about you to us. There are no accounts and no tracking.</p>
+
+      <h2>Why</h2>
+      <p>To answer you. That is the only use. We do not add you to a mailing list, and we do not sell or share your details with anyone for marketing.</p>
+
+      <h2>Who processes it</h2>
+      <ul>
+        <li><strong>Netlify</strong> hosts the site and receives form submissions on our behalf, stores them so we can read them, and emails them to us. Netlify is based in the United States. Its privacy policy is at <a href="https://www.netlify.com/privacy/" rel="noopener">netlify.com/privacy</a>. <Todo what="confirm the site is hosted on Netlify; if another host or form service is used, name it here" /></li>
+        <li><strong>Our email provider</strong> receives the copy of your message. <Todo what="name the email provider, e.g. Google Workspace or Gmail" /></li>
+        <li>Netlify's web servers also keep standard access logs (IP address, browser type, pages requested) for security and to keep the site running, as every web host does.</li>
+      </ul>
+
+      <h2>How long it is kept</h2>
+      <ul>
+        <li>Form submissions stay in Netlify's form storage for <Todo what="retention period, e.g. 12 months" />, then are deleted.</li>
+        <li>The emailed copy stays in our mailbox for as long as the conversation is live and for <Todo what="retention period after the last contact" /> after that, unless a sale or repair record needs to be kept longer for accounting.</li>
+      </ul>
+
+      <h2>Cookies and analytics</h2>
+      {ANALYTICS_IN_USE ? (
+        <p><Todo what="describe the analytics tool in use, what it collects, and update the sentence below" /></p>
+      ) : (
+        <p>None. The site sets no cookies and runs no analytics, advertising or tracking scripts. Fonts are served from our own site, not from a third party.</p>
+      )}
+      <p>The contact page has a map that is loaded from Google Maps only if you press "Show the map". Until you do, nothing is sent to Google. If you do, Google receives your IP address and may set its own cookies; Google's privacy policy applies to that.</p>
+
+      <h2>Your rights</h2>
+      <p>You can ask us to tell you what we hold about you, to correct it, or to delete it. Ask through the <a href="/contact/">contact page</a> and we will do it within a reasonable time. If you delete a message we have not yet answered, we will not be able to answer it.</p>
+      <p><Todo what="lawyer to confirm which state or federal privacy rights apply to a New Hampshire business of this size and whether anything else must be stated" /></p>
+
+      <h2>Children</h2>
+      <p>The site is not aimed at children and we do not knowingly collect information from anyone under 13.</p>
+
+      <h2>Changes</h2>
+      <p>If the site starts collecting something new, this page will say so before it does.</p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .legal h2 {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+    margin-top: 2em;
+  }
+  .legal li {
+    margin-bottom: 0.5em;
+  }
+</style>

@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import Form from '../components/Form.astro';
+import Fact from '../components/Fact.astro';
+import { BUSINESS, ADDRESS_LINE, MAP_LINK, MAP_EMBED, FORMS } from '../config';
+import { isTodo } from '../lib/format';
+---
+
+<Base title="Contact" description={`How to reach JDS Guitars in Derry, NH: address, hours, phone, email and a message form. Visits to the home workshop are by arrangement.`}>
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Contact</h1>
+      <p>Message about a guitar, a repair or a rental, or to arrange a time to come and play.</p>
+    </header>
+
+    <div class="contact-grid">
+      <div class="details">
+        <section class="sheet" aria-labelledby="find-h">
+          <h2 id="find-h">Find us</h2>
+          <p><a href={MAP_LINK} rel="noopener">{ADDRESS_LINE}</a></p>
+          <p>This is a home, not a shop. Please message or phone before coming so Jason can be sure to be in.</p>
+          <p class="small"><Fact value={BUSINESS.parkingNotes} /></p>
+          <h2>Hours</h2>
+          <ul class="plain">
+            {BUSINESS.hours.map((h) => <li><Fact value={h} /></li>)}
+          </ul>
+          <h2>Phone and email</h2>
+          <ul class="plain">
+            <li>Phone: <Fact value={BUSINESS.phone} href={isTodo(BUSINESS.phone) ? undefined : `tel:${BUSINESS.phone.replace(/[^+\d]/g, '')}`} /></li>
+            <li>Email: <Fact value={BUSINESS.email} href={isTodo(BUSINESS.email) ? undefined : `mailto:${BUSINESS.email}`} /></li>
+          </ul>
+        </section>
+
+        <div class="map" data-map>
+          <div class="map-placeholder frame-empty">
+            <p>The map is loaded from Google Maps when you ask for it, so nothing is sent to Google until you do.</p>
+            <button type="button" class="button button-secondary" data-load-map>Show the map</button>
+            <p class="small"><a href={MAP_LINK} rel="noopener">Open in Google Maps instead</a></p>
+          </div>
+          <template data-map-frame>
+            <iframe src={MAP_EMBED} width="600" height="400" title={`Map showing ${ADDRESS_LINE}`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          </template>
+        </div>
+      </div>
+
+      <section class="sheet" aria-labelledby="msg-h">
+        <h2 id="msg-h">Send a message</h2>
+        <p class="item-note" data-item-note hidden>You are asking about <strong data-item-name></strong> (reference <span data-item-ref></span>).</p>
+        <Form name={FORMS.contact} submitLabel="Send message" subject="Message from the website">
+          <input type="hidden" name="item" data-item-field />
+          <div class="field">
+            <label for="c-name">Your name</label>
+            <input id="c-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="c-email">Email</label>
+              <input id="c-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="c-phone">Phone (optional)</label>
+              <input id="c-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="c-message">Message</label>
+            <span class="hint" id="c-message-hint">If it is about a guitar, say which one and whether you want to come and play it.</span>
+            <textarea id="c-message" name="message" aria-describedby="c-message-hint" required minlength="5"></textarea>
+          </div>
+          <fieldset>
+            <legend>How should Jason get back to you?</legend>
+            <label class="choice"><input type="radio" name="contact-method" value="email" checked /> <span>Email</span></label>
+            <label class="choice"><input type="radio" name="contact-method" value="phone" /> <span>Phone call</span></label>
+            <label class="choice"><input type="radio" name="contact-method" value="text" /> <span>Text message</span></label>
+          </fieldset>
+        </Form>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Carry the item reference from a "message us about this guitar" link.
+  const params = new URLSearchParams(location.search);
+  const ref = params.get('item');
+  const name = params.get('name');
+  if (ref) {
+    const note = document.querySelector<HTMLElement>('[data-item-note]');
+    const field = document.querySelector<HTMLInputElement>('[data-item-field]');
+    const message = document.querySelector<HTMLTextAreaElement>('#c-message');
+    const subject = document.querySelector<HTMLInputElement>('input[name=subject]');
+    const label = name ? `${name} (${ref})` : ref;
+    if (field) field.value = label;
+    if (subject) subject.value = `Website message about ${label}`;
+    if (note) {
+      note.querySelector('[data-item-name]')!.textContent = name ?? ref;
+      note.querySelector('[data-item-ref]')!.textContent = ref;
+      note.hidden = false;
+    }
+    if (message && !message.value) message.value = `Hi Jason, I am interested in the ${name ?? ref}. `;
+  }
+
+  // Click-to-load map.
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((map) => {
+    const button = map.querySelector<HTMLButtonElement>('[data-load-map]');
+    const template = map.querySelector<HTMLTemplateElement>('[data-map-frame]');
+    button?.addEventListener('click', () => {
+      if (!template) return;
+      map.replaceChildren(template.content.cloneNode(true));
+      map.querySelector('iframe')?.focus();
+    });
+  });
+</script>
+
+<style>
+  .contact-grid {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .contact-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 3rem;
+    }
+  }
+  .details {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .details h2 {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+    margin-top: 1rem;
+  }
+  .details h2:first-child {
+    margin-top: 0;
+  }
+  .plain {
+    list-style: none;
+    padding: 0;
+  }
+  .map {
+    background: var(--bench-deep);
+    border: 1px solid var(--rule);
+    aspect-ratio: 3 / 2;
+    display: grid;
+  }
+  .map iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .map-placeholder {
+    gap: 0.5rem;
+    align-content: center;
+  }
+  .map-placeholder p {
+    margin: 0;
+  }
+  .item-note {
+    padding: 0.6rem 0.9rem;
+    background: var(--brass-tint);
+    border-left: 4px solid var(--brass);
+  }
+</style>

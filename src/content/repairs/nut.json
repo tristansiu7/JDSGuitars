@@ -1,0 +1,10 @@
+{
+  "name": "New nut",
+  "group": "Nut and saddle",
+  "price": null,
+  "priceType": "fixed",
+  "priceNote": "bone or synthetic bone",
+  "turnaround": null,
+  "description": "A new nut cut and slotted for your string gauges. Fixes open-string buzz, sharp first-fret notes and tuning that will not settle.",
+  "order": 50
+}

@@ -32,7 +32,7 @@ export const BUSINESS = {
   // Opening hours in schema.org format for the MusicStore JSON-LD.
   // Example: ['Mo-Fr 10:00-18:00', 'Sa 10:00-16:00']
   hoursSchema: [] as string[], // TODO: opening hours in schema.org format
-  paymentMethods: ['PayPal', 'Venmo', 'Cash'],
+  paymentMethods: ['PayPal', 'Venmo', 'cash'],
   brands: ['Yamaha', 'Ibanez'], // Brands Jason has said he carries. More: TODO confirm the full list
   social: [] as { label: string; url: string }[], // TODO: social accounts when available
   serviceArea: 'Derry, NH',

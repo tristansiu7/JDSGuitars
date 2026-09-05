@@ -1,0 +1,209 @@
+---
+import Base from '../layouts/Base.astro';
+import Form from '../components/Form.astro';
+import Todo from '../components/Todo.astro';
+import { getCollection } from 'astro:content';
+import { formatPrice } from '../lib/format';
+import { FORMS, BUSINESS } from '../config';
+
+const services = (await getCollection('repairs')).sort((a, b) => a.data.order - b.data.order);
+const groups = ['Setups and strings', 'Fret work', 'Nut and saddle', 'Electronics', 'Structural', 'Finish'] as const;
+const priceLabel = (s: (typeof services)[number]) => {
+  const { price, priceType, priceNote } = s.data;
+  const note = priceNote ? `, ${priceNote}` : '';
+  if (priceType === 'estimate') return `Estimate after inspection${note}`;
+  if (price === null) return null;
+  return `${priceType === 'from' ? 'From ' : ''}${formatPrice(price)}${note}`;
+};
+---
+
+<Base title="Repairs and setups" description={`Guitar setups, restrings, fret work, nut and saddle work, electronics, crack and finish repair in Derry, NH. Priced list with turnaround times, and a form to book your instrument in.`}>
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Repairs and setups</h1>
+      <p>Jason sets up every guitar he sells, and does the same work on yours. Prices below are for a standard six-string. Twelve-strings, basses and anything unusual are quoted.</p>
+    </header>
+
+    <div class="repairs-grid">
+      <div>
+        {groups.map((group) => {
+          const rows = services.filter((s) => s.data.group === group);
+          if (!rows.length) return null;
+          return (
+            <section class="group" aria-labelledby={`g-${group.replace(/\W+/g, '-').toLowerCase()}`}>
+              <h2 id={`g-${group.replace(/\W+/g, '-').toLowerCase()}`}>{group}</h2>
+              <table class="prices">
+                <thead>
+                  <tr>
+                    <th scope="col">Service</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Turnaround</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((s) => {
+                    const label = priceLabel(s);
+                    return (
+                      <tr>
+                        <th scope="row">
+                          <span class="svc">{s.data.name}</span>
+                          <span class="desc">{s.data.description}</span>
+                        </th>
+                        <td class="tnum">{label ?? <Todo what={`price for ${s.data.name.toLowerCase()}`} />}</td>
+                        <td>{s.data.turnaround ?? <Todo what="turnaround" />}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </section>
+          );
+        })}
+
+        <section class="prose" aria-labelledby="how-h">
+          <h2 id="how-h">How a repair works</h2>
+          <ol>
+            <li>Send the form below, or phone, with what the instrument is and what it is doing.</li>
+            <li>Jason looks it over with you when you drop it off at {BUSINESS.address.street}, {BUSINESS.address.town}, and confirms the price. Anything marked "estimate" is quoted then, before work starts.</li>
+            <li>If he finds something else while working on it he stops and asks before doing more.</li>
+            <li>Pay when you collect, by {BUSINESS.paymentMethods.join(', ').replace(/, ([^,]*)$/, ' or $1')}.</li>
+          </ol>
+          <p>Strings are extra unless the price says otherwise. Bring the strings you like, or say what gauge you play and Jason will fit them. The <a href="/terms/">terms and conditions</a> cover estimates, instruments left on site and collection.</p>
+        </section>
+      </div>
+
+      <aside class="intake" aria-labelledby="intake-h">
+        <h2 id="intake-h">Book a repair</h2>
+        <p>Tell Jason what the instrument is and what is wrong. He will reply with a price or a time to bring it in.</p>
+        <Form name={FORMS.repair} submitLabel="Send repair request" subject="Repair request from the website">
+          <div class="field">
+            <label for="r-name">Your name</label>
+            <input id="r-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="r-email">Email</label>
+              <input id="r-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="r-phone">Phone (optional)</label>
+              <input id="r-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="r-instrument">Instrument</label>
+            <span class="hint" id="r-instrument-hint">Make and model, e.g. Ibanez RG421. Say if it is a bass, twelve-string or left-handed.</span>
+            <input id="r-instrument" name="instrument" type="text" aria-describedby="r-instrument-hint" required />
+          </div>
+          <div class="field">
+            <label for="r-fault">What is it doing, or what do you want done?</label>
+            <span class="hint" id="r-fault-hint">Where it buzzes, what crackles, how high the action feels. As much detail as you can.</span>
+            <textarea id="r-fault" name="fault" aria-describedby="r-fault-hint" required minlength="10"></textarea>
+          </div>
+          <fieldset>
+            <legend>How should Jason get back to you?</legend>
+            <label class="choice"><input type="radio" name="contact-method" value="email" checked /> <span>Email</span></label>
+            <label class="choice"><input type="radio" name="contact-method" value="phone" /> <span>Phone call</span></label>
+            <label class="choice"><input type="radio" name="contact-method" value="text" /> <span>Text message</span></label>
+          </fieldset>
+        </Form>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .repairs-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .repairs-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 4rem;
+    }
+  }
+  .group {
+    margin-bottom: 2.5rem;
+  }
+  .prices {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    font-size: var(--fs-base);
+  }
+  .prices th,
+  .prices td {
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid var(--rule);
+  }
+  .prices thead th {
+    border-top: 0;
+    font-stretch: 75%;
+    font-weight: 500;
+    color: var(--walnut);
+    font-size: var(--fs-sm);
+  }
+  .prices tbody th {
+    font-weight: 400;
+  }
+  .svc {
+    display: block;
+    font-weight: 600;
+  }
+  .desc {
+    display: block;
+    font-size: var(--fs-sm);
+    color: var(--walnut);
+    max-width: 48ch;
+  }
+  .prices td {
+    min-width: 8rem;
+  }
+  .prices th:first-child {
+    width: 55%;
+  }
+  @media (max-width: 599px) {
+    .prices thead {
+      display: none;
+    }
+    .prices tr {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--rule);
+    }
+    .prices tbody th {
+      grid-column: 1 / -1;
+      border-top: 0;
+      padding-bottom: 0.25rem;
+    }
+    .prices td {
+      border-top: 0;
+      padding-top: 0;
+      min-width: 0;
+    }
+    .prices td:nth-child(2)::before {
+      content: 'Price: ';
+      color: var(--walnut);
+    }
+    .prices td:nth-child(3)::before {
+      content: 'Turnaround: ';
+      color: var(--walnut);
+    }
+  }
+  .intake {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    padding: 1.5rem;
+  }
+  @media (min-width: 1000px) {
+    .intake {
+      position: sticky;
+      top: 1rem;
+    }
+  }
+</style>

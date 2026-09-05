@@ -1,0 +1,10 @@
+{
+  "name": "Electronics repair",
+  "group": "Electronics",
+  "price": null,
+  "priceType": "from",
+  "priceNote": "plus parts",
+  "turnaround": null,
+  "description": "Crackling pots, dead switches, a jack that cuts out, a loose ground. Diagnosed and fixed, with new parts where the old ones are worn out.",
+  "order": 60
+}

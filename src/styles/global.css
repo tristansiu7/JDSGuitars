@@ -615,7 +615,7 @@ fieldset legend {
 /* Todo markers: visible on purpose. The site must not ship with one. ----- */
 
 .todo {
-  display: inline-block;
+  display: inline;
   padding: 0 0.35em;
   background: var(--sunburst);
   color: var(--sheet);

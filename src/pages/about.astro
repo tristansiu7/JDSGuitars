@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import Todo from '../components/Todo.astro';
+import { BUSINESS, ADDRESS_LINE } from '../config';
+---
+
+<Base title="About" description="JDS Guitars is run by Jason Sliviak from his home in Derry, NH: set-up guitars from Sweetwater open-box and return stock, plus setups and repairs.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>About</h1>
+      <p>One person, a workshop at home, and a rack of guitars that have all been played before they were listed.</p>
+    </header>
+
+    <div class="about-grid">
+      <div class="prose">
+        <h2>Jason</h2>
+        <p>{BUSINESS.owner} runs JDS Guitars from his home at {ADDRESS_LINE}. He is a guitarist first, and the reason the shop exists is that he enjoys helping people find the right guitar for them. He does not sell junk. Every guitar is set up and ready to play before it goes on the site, and he helps with setups and any issues after you have bought.</p>
+        <p><Todo what="a paragraph from Jason about his playing and how long he has been working on guitars, if he wants it on the page" /></p>
+
+        <h2>Where the guitars come from</h2>
+        <p>Most of the stock is open-box demos and returns from Sweetwater. These are guitars that were opened and tried, or came back because they needed a setup or had a blemish. Jason buys them, does the setup or the repair, and sells them for less than new. It is a good way to save money on a guitar that is otherwise as new, and each listing says exactly what was wrong and what was done.</p>
+        <p>Some guitars are used instruments bought locally. Those are described the same way: the condition notes say where the wear is, and the price reflects it.</p>
+
+        <h2>What you get when you visit</h2>
+        <p>There is no storefront. You message or phone, arrange a time, and come to the house. Jason will go through the options with you, the details of each guitar, what is different between them, and why each one is priced the way it is. If a guitar has a history, he tells you. The point is that you leave well informed, whether or not you buy.</p>
+
+        <h2>The workshop</h2>
+        <p>Setups, restrings, fret levelling, nut and saddle work, electronics, crack repair and finish touch-ups are done at the house. The <a href="/repairs/">repairs page</a> has the price list and a form to book an instrument in.</p>
+        <p><Todo what="a sentence or two about the workshop itself: bench, tools, anything Jason wants people to know" /></p>
+
+        <h2>Brands</h2>
+        <p>Recent stock has included {BUSINESS.brands.join(', ').replace(/, ([^,]*)$/, ' and $1')} among others. Stock changes week to week, so the <a href="/guitars/">guitars page</a> is the accurate list.</p>
+      </div>
+
+      <aside class="sheet facts" aria-label="Quick facts">
+        <h2>In short</h2>
+        <dl>
+          <div><dt>Owner</dt><dd>{BUSINESS.owner}</dd></div>
+          <div><dt>Where</dt><dd>{ADDRESS_LINE}</dd></div>
+          <div><dt>What</dt><dd>Guitars, other gear, setups and repairs, rentals</dd></div>
+          <div><dt>Payment</dt><dd>{BUSINESS.paymentMethods.join(', ')}</dd></div>
+          <div><dt>Visits</dt><dd>By arrangement. <a href="/contact/">Get in touch</a>.</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .about-grid {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      gap: 4rem;
+    }
+  }
+  .prose h2:first-child {
+    margin-top: 0;
+  }
+  .facts h2 {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+  }
+  .facts dl {
+    margin: 0;
+  }
+  .facts div {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-size: var(--fs-sm);
+    color: var(--walnut);
+    font-stretch: 75%;
+  }
+  .facts dd {
+    margin: 0;
+  }
+</style>

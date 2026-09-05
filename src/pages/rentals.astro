@@ -1,0 +1,188 @@
+---
+import Base from '../layouts/Base.astro';
+import Form from '../components/Form.astro';
+import Todo from '../components/Todo.astro';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { formatPrice } from '../lib/format';
+import { FORMS } from '../config';
+
+const showDrafts = import.meta.env.DEV || import.meta.env.SHOW_DRAFTS === '1';
+const rentals = (await getCollection('rentals', ({ data }) => showDrafts || !data.draft)).sort((a, b) => a.data.name.localeCompare(b.data.name));
+---
+
+<Base title="Rentals" description="Music gear to rent by the day or week in Derry, NH. Rates, deposit, minimum period and the damage policy, with a booking enquiry form.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Rentals</h1>
+      <p>Gear to hire by the day or the week, collected from Derry. Ask with your dates and Jason will confirm availability.</p>
+    </header>
+
+    <section aria-labelledby="avail-h" class="block">
+      <div class="section-head">
+        <h2 id="avail-h">What is available</h2>
+      </div>
+      {rentals.length === 0 ? (
+        <div class="empty">
+          <p>Nothing is listed for rent yet. <a href="/contact/">Ask Jason</a> what he can lend for your gig or session and he will tell you what is possible.</p>
+        </div>
+      ) : (
+        <ul class="rental-list">
+          {rentals.map((r) => (
+            <li class="sheet rental">
+              {r.data.photos[0] && (
+                <div class="frame">
+                  <Image src={r.data.photos[0].src} alt={r.data.photos[0].alt} width={400} height={500} fit="cover" format="webp" loading="lazy" />
+                </div>
+              )}
+              <div>
+                <h3>{r.data.name} {r.data.draft && <span class="tag tag-draft">Draft</span>}</h3>
+                <p class="muted small">{r.data.category}{!r.data.available && ', out on hire at the moment'}</p>
+                <dl class="rates">
+                  <div><dt>Per day</dt><dd class="tnum">{r.data.dailyRate === null ? <Todo what="daily rate" /> : formatPrice(r.data.dailyRate)}</dd></div>
+                  <div><dt>Per week</dt><dd class="tnum">{r.data.weeklyRate === null ? <Todo what="weekly rate" /> : formatPrice(r.data.weeklyRate)}</dd></div>
+                  <div><dt>Deposit</dt><dd class="tnum">{r.data.deposit === null ? <Todo what="deposit" /> : formatPrice(r.data.deposit)}</dd></div>
+                  <div><dt>Minimum</dt><dd>{r.data.minimumPeriod ?? <Todo what="minimum period" />}</dd></div>
+                </dl>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+
+    <div class="two-col block">
+      <section class="prose" aria-labelledby="terms-h">
+        <h2 id="terms-h">Rental terms in brief</h2>
+        <p>The full wording is in the <a href="/terms/#rentals">terms and conditions</a>. In short:</p>
+        <dl class="brief">
+          <div>
+            <dt>Minimum period</dt>
+            <dd><Todo what="minimum hire period" /></dd>
+          </div>
+          <div>
+            <dt>Deposit</dt>
+            <dd><Todo what="deposit amount or rule, and when it is returned" /></dd>
+          </div>
+          <div>
+            <dt>ID</dt>
+            <dd><Todo what="what ID is needed to rent, e.g. photo ID and a local address" /></dd>
+          </div>
+          <div>
+            <dt>Damage</dt>
+            <dd><Todo what="damage policy: what the deposit covers, what is charged beyond it, normal wear" /></dd>
+          </div>
+          <div>
+            <dt>Late return</dt>
+            <dd><Todo what="late return charge" /></dd>
+          </div>
+          <div>
+            <dt>Collection and delivery</dt>
+            <dd><Todo what="collection from Derry only, or delivery within some distance and at what cost" /></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="sheet" aria-labelledby="book-h">
+        <h2 id="book-h">Ask about a rental</h2>
+        <p>This is an enquiry, not a confirmed booking. Jason will reply to confirm the gear is free on your dates.</p>
+        <Form name={FORMS.rental} submitLabel="Send rental enquiry" subject="Rental enquiry from the website">
+          <div class="field">
+            <label for="b-name">Your name</label>
+            <input id="b-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="b-email">Email</label>
+              <input id="b-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label for="b-phone">Phone (optional)</label>
+              <input id="b-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="b-item">What do you want to rent?</label>
+            <input id="b-item" name="item" type="text" list="rental-items" required />
+            {rentals.length > 0 && (
+              <datalist id="rental-items">
+                {rentals.map((r) => <option value={r.data.name} />)}
+              </datalist>
+            )}
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="b-from">From</label>
+              <input id="b-from" name="from" type="date" required />
+            </div>
+            <div class="field">
+              <label for="b-to">To</label>
+              <input id="b-to" name="to" type="date" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="b-notes">Anything else (optional)</label>
+            <span class="hint" id="b-notes-hint">What it is for, whether you need it delivered, anything that affects the gear you need.</span>
+            <textarea id="b-notes" name="notes" aria-describedby="b-notes-hint"></textarea>
+          </div>
+        </Form>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .block {
+    margin-bottom: 3rem;
+  }
+  .rental-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--gutter);
+  }
+  @media (min-width: 700px) {
+    .rental-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .rental {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .rental h3 {
+    margin-bottom: 0.2rem;
+  }
+  .rates {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 1rem;
+  }
+  .rates div {
+    display: grid;
+  }
+  .rates dt {
+    font-size: var(--fs-sm);
+    color: var(--walnut);
+    font-stretch: 75%;
+  }
+  .rates dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .brief div {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .brief dt {
+    font-weight: 600;
+  }
+  .brief dd {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,10 @@
+{
+  "name": "Fret level, crown and polish",
+  "group": "Fret work",
+  "price": null,
+  "priceType": "fixed",
+  "priceNote": "includes a setup",
+  "turnaround": null,
+  "description": "For guitars that buzz in one spot or have divots under the plain strings. The frets are levelled true, recrowned and polished, then the guitar is set up.",
+  "order": 30
+}

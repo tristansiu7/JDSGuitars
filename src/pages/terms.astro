@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import Todo from '../components/Todo.astro';
+import { BUSINESS, ADDRESS_LINE } from '../config';
+---
+
+<Base title="Terms and conditions" description="Terms and conditions for buying from, having repairs done by, and renting from JDS Guitars in Derry, NH.">
+  <div class="wrap">
+    <header class="page-title">
+      <h1>Terms and conditions</h1>
+      <p>These terms cover buying an instrument or equipment from JDS Guitars, having repair work done, and renting gear. Plain language on purpose. If something is unclear, ask before you buy, book or hire.</p>
+    </header>
+
+    <div class="prose legal">
+      <p class="small muted">Last updated: <Todo what="date these terms were finalised" />. <Todo what="have a New Hampshire lawyer review this page before launch" /></p>
+
+      <h2 id="who">1. Who you are dealing with</h2>
+      <p>JDS Guitars is run by {BUSINESS.owner} from {ADDRESS_LINE}. <Todo what="legal form of the business (sole proprietor or LLC) and, if an LLC, its registered name" />. "We", "us" and "Jason" in these terms mean JDS Guitars. "You" means the customer.</p>
+
+      <h2 id="sales">2. Sales and pricing</h2>
+      <ul>
+        <li>Prices on the site are in US dollars and are the price you pay, plus any sales tax that applies. <Todo what="confirm whether NH sales tax applies (NH has no general sales tax) and whether any other tax is collected" /></li>
+        <li>Prices can change without notice until you have paid or paid a deposit. The price you are quoted when you agree to buy is the price you pay.</li>
+        <li>Payment is by {BUSINESS.paymentMethods.join(', ').replace(/, ([^,]*)$/, ' or $1')}. An instrument stays ours until it is paid for in full.</li>
+        <li>Buying and collecting happens in person at the address above unless we agree something else in writing. <Todo what="whether you ship instruments, and if so who pays and who carries the risk in transit" /></li>
+      </ul>
+
+      <h2 id="stock">3. Stock accuracy</h2>
+      <ul>
+        <li>We list one physical instrument per page and describe it as accurately as we can, including flaws. Photos are of the actual instrument. The condition notes are part of the description.</li>
+        <li>Stock changes quickly. An instrument shown as in stock may have sold or be on hold before the site is updated. Nothing is reserved until we confirm it to you and, where we ask for one, a deposit is paid.</li>
+        <li>If we discover an error in a listing (a wrong price, a wrong spec) we will tell you before you pay and you can decide whether to go ahead.</li>
+      </ul>
+
+      <h2 id="deposits">4. Deposits and layaway</h2>
+      <ul>
+        <li>We may agree to hold an instrument for you against a deposit. <Todo what="deposit amount or percentage, how long an instrument is held, and whether the deposit is refundable if you change your mind" /></li>
+        <li>Layaway: <Todo what="whether layaway is offered at all; if so, the minimum deposit, the payment schedule, the maximum term, and what happens to payments if the plan is not completed" /></li>
+      </ul>
+
+      <h2 id="returns">5. Returns</h2>
+      <ul>
+        <li>You are welcome to play any instrument at the house before you buy, for as long as it takes to be sure. Please do.</li>
+        <li>Used and open-box instruments are sold as described, in the condition set out in the listing and as you saw them when you collected. <Todo what="your return policy on used and open-box instruments: none, or a set number of days, and any restocking charge" /></li>
+        <li>New instruments: <Todo what="return policy on new instruments" /></li>
+        <li>If an instrument is not as described, tell us within <Todo what="number of days" /> of collecting it and we will put it right, exchange it or refund it. This does not affect any rights you have under New Hampshire law. <Todo what="lawyer to confirm the statutory position on used goods in NH and the wording of any 'as is' disclaimer, which must be conspicuous to be effective" /></li>
+      </ul>
+
+      <h2 id="warranty">6. Warranty</h2>
+      <ul>
+        <li>New instruments carry the manufacturer's warranty where the manufacturer honours it for the sale channel. Open-box and return stock usually does not carry a manufacturer's warranty. The listing says which. <Todo what="confirm the warranty position for Sweetwater open-box and return stock" /></li>
+        <li>Used and open-box instruments: we guarantee that the instrument is as described and that the setup is right when you collect it. <Todo what="whether you offer any period of warranty on used instruments, e.g. 30 days on faults not disclosed in the listing" /></li>
+        <li>Setup help after purchase: Jason helps with setup questions and adjustments after you buy. <Todo what="what after-sale setup help is included free, for how long, and what is charged at the repair rates" /></li>
+        <li>Wear from use, string breakage, damage, humidity-related movement and modifications are not covered.</li>
+      </ul>
+
+      <h2 id="repairs">7. Repairs</h2>
+      <ul>
+        <li>Prices on the repairs page marked as fixed or "from" are for a standard six-string instrument in normal condition. Prices marked "estimate" are quoted after inspection.</li>
+        <li>Work starts only when you have agreed the price or the estimate. If more work is needed than expected, we stop and ask before going beyond what you agreed. An estimate can be exceeded only with your agreement.</li>
+        <li>Turnaround times are estimates and depend on parts and the queue. We will tell you if a job will take longer than quoted.</li>
+        <li>Parts (strings, pots, nuts, fret wire) are charged in addition to labour unless the price says otherwise.</li>
+        <li>Payment is due when you collect the instrument.</li>
+        <li>We take reasonable care of every instrument in the workshop. Instruments are left at your own risk for loss or damage caused by events outside our control (fire, flood, theft). <Todo what="whether you carry insurance covering customers' instruments on site, and the limit of your liability per instrument" /></li>
+        <li>Some work carries an unavoidable risk (old finishes can chip around a repair, old plastics can crack). We will tell you about any such risk before starting and will not be liable for it once you have agreed to go ahead.</li>
+      </ul>
+
+      <h2 id="unclaimed">8. Unclaimed instruments</h2>
+      <ul>
+        <li>We will let you know when a repair is finished. Please collect it within <Todo what="number of days" /> of that notice.</li>
+        <li>If an instrument has not been collected <Todo what="number of days or months" /> after we have told you it is ready, and we have tried to reach you at least twice using the contact details you gave, we may treat it as abandoned. <Todo what="what then happens: sold to recover the repair charge and storage, with any surplus returned to you, or donated. A lawyer should confirm this against New Hampshire law on abandoned property and repair liens" /></li>
+        <li>Storage after the collection period: <Todo what="whether a storage charge applies and how much per week" /></li>
+      </ul>
+
+      <h2 id="rentals">9. Rentals</h2>
+      <ul>
+        <li>Rates are per day or per week as shown on the rentals page. Minimum hire period: <Todo what="minimum period" />.</li>
+        <li>A deposit of <Todo what="deposit amount or rule" /> is taken before the gear leaves and returned <Todo what="when and how the deposit is returned, e.g. on return of the gear in the same condition, within X days" />.</li>
+        <li>You must show <Todo what="ID required, e.g. government photo ID, and any proof of address" /> and be at least <Todo what="minimum age" /> years old.</li>
+        <li>You are responsible for the gear from collection to return. Normal wear is expected. Damage beyond normal wear, loss or theft is charged at the cost of repair or replacement, first from the deposit and then invoiced for any balance. <Todo what="confirm this is the policy and whether there is a cap" /></li>
+        <li>Late return is charged at <Todo what="late return rate, e.g. the daily rate for each day or part day late" />. Tell us if you need longer and we will extend the hire if the gear is free.</li>
+        <li>Rental gear is for your own use. Do not lend it on, modify it, or take it outside <Todo what="any geographic limit" /> without asking.</li>
+        <li>Collection and return are at the address above. <Todo what="delivery: offered or not, area, and cost" /></li>
+        <li>We can refuse or end a rental if the terms are not being kept.</li>
+      </ul>
+
+      <h2 id="payment">10. Payment terms</h2>
+      <ul>
+        <li>Sales and repairs: paid in full at collection.</li>
+        <li>Rentals: hire charge and deposit paid before the gear leaves.</li>
+        <li>PayPal and Venmo payments are made to the account Jason gives you in person or by message. Check the name matches before sending. We never ask for payment through links in email.</li>
+      </ul>
+
+      <h2 id="liability">11. Liability</h2>
+      <p>Nothing in these terms limits liability for anything that cannot be limited by law. Otherwise, our liability to you for any purchase, repair or rental is limited to the amount you paid us for it. <Todo what="lawyer to review this clause" /></p>
+
+      <h2 id="law">12. Governing law</h2>
+      <p>These terms are governed by the law of the State of New Hampshire.</p>
+
+      <h2 id="changes">13. Changes</h2>
+      <p>We may update these terms. The version on the site at the time you buy, book or hire is the one that applies to that transaction.</p>
+
+      <h2 id="contact">14. Questions</h2>
+      <p>Ask through the <a href="/contact/">contact page</a>.</p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .legal h2 {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+    margin-top: 2em;
+  }
+  .legal li {
+    margin-bottom: 0.5em;
+  }
+</style>
