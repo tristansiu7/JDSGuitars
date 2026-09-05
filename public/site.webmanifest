@@ -1,0 +1,12 @@
+{
+  "name": "JDS Guitars",
+  "short_name": "JDS Guitars",
+  "description": "Set-up, ready-to-play guitars, repairs and rentals in Derry, NH.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#edeae4",
+  "theme_color": "#231a15",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
