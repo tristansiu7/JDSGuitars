@@ -1,0 +1,15 @@
+---
+// Renders a business fact from src/config.ts, or a visible TODO marker if
+// the value has not been supplied yet.
+import Todo from './Todo.astro';
+import { isTodo } from '../lib/format';
+interface Props {
+  value: string;
+  href?: string;
+}
+const { value, href } = Astro.props;
+const todo = isTodo(value);
+const what = todo ? value.replace(/^TODO:\s*/, '') : '';
+---
+
+{todo ? <Todo what={what} /> : href ? <a href={href}>{value}</a> : <Fragment>{value}</Fragment>}

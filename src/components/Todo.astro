@@ -1,0 +1,10 @@
+---
+// A visible marker for something Jason has not supplied yet.
+// The site must not ship with one of these on any page: `npm run check:todos`.
+interface Props {
+  what: string;
+}
+const { what } = Astro.props;
+---
+
+<mark class="todo">TODO: {what}</mark>

@@ -1,0 +1,648 @@
+/* JDS Guitars: global styles. Tokens come from DESIGN.md. */
+
+@import '@fontsource-variable/archivo/wdth.css';
+
+:root {
+  /* Palette */
+  --bench: #edeae4;
+  --sheet: #ffffff;
+  --rosewood: #231a15;
+  --walnut: #5e4330;
+  --brass: #b9902f;
+  --sunburst: #8a2e1f;
+
+  /* Derived tints, all from the six above */
+  --rule: rgb(35 26 21 / 0.18);
+  --rule-strong: var(--rosewood);
+  --bench-deep: #e2ded6;
+  --brass-tint: rgb(185 144 47 / 0.16);
+  --sunburst-tint: rgb(138 46 31 / 0.1);
+
+  /* Type */
+  --font: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1.0625rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.5rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2rem;
+  --fs-3xl: 2.6rem;
+  --fs-4xl: 3.2rem;
+  --fs-5xl: 4rem;
+  --lh: 1.55;
+
+  /* Shape */
+  --radius: 3px;
+  --measure: 66ch;
+  --content: 1200px;
+  --gutter: 1.5rem;
+  --section: 3rem;
+  --focus: 0 0 0 3px var(--brass);
+}
+
+@media (min-width: 900px) {
+  :root {
+    --section: 5rem;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font);
+  font-size: 100%;
+  line-height: var(--lh);
+  color: var(--rosewood);
+  background: var(--bench);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: var(--fs-base);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Type ------------------------------------------------------------------ */
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 0.5em;
+  line-height: 1.1;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: var(--fs-3xl);
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: var(--fs-lg);
+  font-stretch: 110%;
+}
+
+h3 {
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  h1 {
+    font-size: var(--fs-4xl);
+  }
+}
+
+p,
+ul,
+ol,
+dl {
+  margin: 0 0 1em;
+}
+
+p,
+li,
+dd {
+  max-width: var(--measure);
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+  border-radius: var(--radius);
+}
+
+.muted {
+  color: var(--walnut);
+}
+
+.small {
+  font-size: var(--fs-sm);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Layout ---------------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--content);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section);
+}
+
+.section + .section {
+  padding-top: 0;
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--rule-strong);
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.page-title {
+  padding-block: 2.5rem 1.5rem;
+  border-bottom: 2px solid var(--rule-strong);
+  margin-bottom: 2rem;
+}
+
+.page-title h1 {
+  margin-bottom: 0.25em;
+}
+
+.page-title p {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: var(--walnut);
+}
+
+.grid {
+  display: grid;
+  gap: var(--gutter);
+}
+
+.grid-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 700px) {
+  .grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1000px) {
+  .grid-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.two-col {
+  display: grid;
+  gap: var(--gutter) calc(var(--gutter) * 2);
+}
+
+@media (min-width: 900px) {
+  .two-col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.prose {
+  max-width: var(--measure);
+}
+
+.prose h2 {
+  margin-top: 2em;
+}
+
+.prose h3 {
+  margin-top: 1.5em;
+}
+
+/* Surfaces ------------------------------------------------------------- */
+
+.sheet {
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  padding: 1.25rem;
+}
+
+/* Buttons --------------------------------------------------------------- */
+
+.button {
+  display: inline-block;
+  padding: 0.7rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  color: var(--sheet);
+  background: var(--rosewood);
+  border: 2px solid var(--rosewood);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+}
+
+.button:hover {
+  background: var(--walnut);
+  border-color: var(--walnut);
+  text-decoration: none;
+}
+
+.button-secondary {
+  color: var(--rosewood);
+  background: transparent;
+}
+
+.button-secondary:hover {
+  color: var(--sheet);
+  background: var(--rosewood);
+  border-color: var(--rosewood);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Tags ------------------------------------------------------------------- */
+
+.tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--sheet);
+  white-space: nowrap;
+}
+
+.tag-grade {
+  background: var(--brass-tint);
+  border-color: var(--brass);
+  color: var(--rosewood);
+}
+
+.tag-sold {
+  background: var(--sunburst-tint);
+  border-color: var(--sunburst);
+  color: var(--sunburst);
+}
+
+.tag-draft {
+  background: var(--sunburst);
+  border-color: var(--sunburst);
+  color: var(--sheet);
+}
+
+/* Forms ------------------------------------------------------------------ */
+
+.form {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 44rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label,
+.field > .label,
+fieldset legend {
+  font-weight: 600;
+}
+
+.field .hint {
+  font-size: var(--fs-sm);
+  color: var(--walnut);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  color: var(--rosewood);
+  background: var(--sheet);
+  border: 1px solid var(--walnut);
+  border-radius: var(--radius);
+}
+
+.field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  border-color: var(--rosewood);
+  box-shadow: var(--focus);
+}
+
+.field-row {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 600px) {
+  .field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+fieldset legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+  font-weight: 400;
+}
+
+.choice input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--rosewood);
+  flex: none;
+}
+
+.form-error {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--sunburst);
+  border-left-width: 4px;
+  background: var(--sunburst-tint);
+  color: var(--rosewood);
+}
+
+.form-success {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--brass);
+  border-left-width: 4px;
+  background: var(--brass-tint);
+}
+
+.field input[aria-invalid='true'],
+.field textarea[aria-invalid='true'],
+.field select[aria-invalid='true'] {
+  border-color: var(--sunburst);
+  border-width: 2px;
+}
+
+.field-error {
+  font-size: var(--fs-sm);
+  color: var(--sunburst);
+  font-weight: 500;
+}
+
+/* Spec table ------------------------------------------------------------ */
+
+.spec {
+  margin: 0;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+}
+
+.spec > div {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 1fr) 2fr;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.spec > div:first-child {
+  border-top: 0;
+}
+
+.spec dt {
+  font-stretch: 75%;
+  font-weight: 500;
+  color: var(--walnut);
+}
+
+.spec dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  max-width: none;
+}
+
+/* Photo frames ----------------------------------------------------------- */
+
+.frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--bench-deep);
+  overflow: hidden;
+}
+
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.frame-empty {
+  display: grid;
+  place-items: center;
+  color: var(--walnut);
+  font-size: var(--fs-sm);
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Cards ------------------------------------------------------------------ */
+
+.card {
+  display: grid;
+  gap: 0.6rem;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  padding-bottom: 0.9rem;
+}
+
+.card .frame {
+  margin: 0;
+}
+
+.card-body {
+  padding-inline: 0.9rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.card-make {
+  font-size: var(--fs-sm);
+  color: var(--walnut);
+  margin: 0;
+}
+
+.card-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.card-title a {
+  text-decoration: none;
+}
+
+.card-title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.card-title a:hover {
+  text-decoration: underline;
+}
+
+.card {
+  position: relative;
+}
+
+.card:hover {
+  border-color: var(--rosewood);
+}
+
+.card:focus-within {
+  box-shadow: var(--focus);
+}
+
+.card-title a:focus-visible {
+  box-shadow: none;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.card-price {
+  font-weight: 700;
+  font-stretch: 110%;
+  font-size: var(--fs-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.card-price del {
+  font-weight: 400;
+  color: var(--walnut);
+}
+
+/* Empty state ------------------------------------------------------------- */
+
+.empty {
+  background: var(--sheet);
+  border: 1px dashed var(--walnut);
+  padding: 1.5rem;
+  max-width: 44rem;
+}
+
+.empty p:last-child {
+  margin-bottom: 0;
+}
+
+/* Todo markers: visible on purpose. The site must not ship with one. ----- */
+
+.todo {
+  display: inline-block;
+  padding: 0 0.35em;
+  background: var(--sunburst);
+  color: var(--sheet);
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+/* Motion: only on hover or click, and off when the visitor asks -------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .button,
+  a,
+  .card {
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+}
+
+/* Print: the spec sheet should print cleanly ----------------------------- */
+
+@media print {
+  .site-header,
+  .site-footer,
+  .button {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}

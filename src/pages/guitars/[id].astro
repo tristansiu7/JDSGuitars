@@ -1,0 +1,96 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import Detail from '../../layouts/Detail.astro';
+import ItemCard from '../../components/ItemCard.astro';
+import { getGuitars, guitarTitle, itemRef, guitarUrl } from '../../lib/items';
+import { GUITAR_TYPES, CONDITIONS } from '../../config';
+import { formatPrice } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const guitars = await getGuitars();
+  return guitars.map((guitar) => ({ params: { id: guitar.id }, props: { guitar, guitars } }));
+}
+
+const { guitar, guitars } = Astro.props;
+const { data } = guitar;
+const { Content } = await render(guitar);
+const name = guitarTitle(guitar);
+const ref = itemRef(guitar);
+const typeLabel = GUITAR_TYPES[data.type];
+
+const metaLine = [data.year ? String(data.year) : null, typeLabel, CONDITIONS[data.condition], data.handedness === 'left' ? 'Left-handed' : null].filter(Boolean) as string[];
+
+const serial = data.serial ?? 'Withheld online, shown to the buyer';
+
+const specs: [string, string | number | undefined | null][] = [
+  ['Year', data.year],
+  ['Make', data.make],
+  ['Model', data.model],
+  ['Serial', serial],
+  ['Body', data.specs.bodyWood],
+  ['Top', data.specs.top],
+  ['Neck', data.specs.neckWood],
+  ['Neck profile', data.specs.neckProfile],
+  ['Fretboard', data.specs.fretboard],
+  ['Scale length', data.specs.scaleLength],
+  ['Nut width', data.specs.nutWidth],
+  ['Frets', data.specs.frets],
+  ['Pickups', data.specs.pickups],
+  ['Electronics', data.specs.electronics],
+  ['Hardware', data.specs.hardware],
+  ['Finish', data.specs.finish],
+  ['Colour', data.specs.colour],
+  ['Strings', data.specs.strings],
+  ['Weight', data.specs.weight],
+  ...Object.entries(data.extraSpecs),
+  ['Case', data.case],
+];
+
+const description = `${name}, ${metaLine.join(', ').toLowerCase()}, ${formatPrice(data.price)}${data.summary ? `. ${data.summary}` : ''}. Set up and ready to play at JDS Guitars, Derry NH.`;
+
+const og = data.photos[0] ? await getImage({ src: data.photos[0].src, width: 1200, height: 630, fit: 'cover', format: 'jpeg' }) : null;
+
+// Same type, still available, not this one.
+const related = guitars.filter((g) => g.id !== guitar.id && g.data.type === data.type && g.data.status !== 'sold').slice(0, 4);
+---
+
+<Detail
+  kind="guitar"
+  crumbs={[['/guitars/', 'Guitars'], [`/guitars/?type=${data.type}`, typeLabel]]}
+  make={data.make}
+  model={data.model}
+  name={name}
+  metaLine={metaLine}
+  ref={ref}
+  price={data.price}
+  status={data.status}
+  grade={data.grade}
+  condition={data.condition}
+  summary={data.summary}
+  caseIncluded={data.case}
+  photos={data.photos}
+  specs={specs}
+  setupNotes={data.setupNotes}
+  repairHistory={data.repairHistory}
+  draft={data.draft}
+  description={description}
+  ogImage={og?.src}
+  brand={data.make}
+  categoryLabel={`${typeLabel} guitar`}
+>
+  <Fragment slot="condition"><Content /></Fragment>
+  {related.length > 0 && (
+    <section class="wrap section" slot="related" aria-labelledby="related-h">
+      <div class="section-head">
+        <h2 id="related-h">More {typeLabel.toLowerCase()}{data.type === 'bass' ? 'es' : 's'} in stock</h2>
+        <a href={`/guitars/?type=${data.type}`}>All {typeLabel.toLowerCase()}{data.type === 'bass' ? 'es' : 's'}</a>
+      </div>
+      <div class="grid grid-cards">
+        {related.map((g) => (
+          <ItemCard href={guitarUrl(g)} make={g.data.make} model={g.data.model} price={g.data.price} grade={g.data.grade} status={g.data.status} photo={g.data.photos[0]} draft={g.data.draft} />
+        ))}
+      </div>
+    </section>
+  )}
+</Detail>

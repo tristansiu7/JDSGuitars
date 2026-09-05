@@ -1,0 +1,95 @@
+---
+import { BUSINESS, ADDRESS_LINE, MAP_LINK } from '../config';
+import Fact from './Fact.astro';
+import { isTodo } from '../lib/format';
+---
+
+<footer class="site-footer">
+  <div class="wrap foot">
+    <div>
+      <p class="foot-name">{BUSINESS.name}</p>
+      <p>{BUSINESS.owner}<br /><a href={MAP_LINK} rel="noopener">{ADDRESS_LINE}</a></p>
+      <p>A home workshop, not a storefront. Message first to arrange a visit.</p>
+    </div>
+    <div>
+      <p class="foot-head">Hours</p>
+      <ul class="plain">
+        {BUSINESS.hours.map((h) => <li><Fact value={h} /></li>)}
+      </ul>
+    </div>
+    <div>
+      <p class="foot-head">Get in touch</p>
+      <ul class="plain">
+        <li>Phone: <Fact value={BUSINESS.phone} href={isTodo(BUSINESS.phone) ? undefined : `tel:${BUSINESS.phone.replace(/[^+\d]/g, '')}`} /></li>
+        <li>Email: <Fact value={BUSINESS.email} href={isTodo(BUSINESS.email) ? undefined : `mailto:${BUSINESS.email}`} /></li>
+        <li><a href="/contact/">Contact form</a></li>
+        {BUSINESS.social.map((s) => <li><a href={s.url} rel="noopener">{s.label}</a></li>)}
+      </ul>
+      <p class="small">Payment by {BUSINESS.paymentMethods.join(', ')}.</p>
+    </div>
+    <div>
+      <p class="foot-head">Pages</p>
+      <ul class="plain">
+        <li><a href="/guitars/">Guitars</a></li>
+        <li><a href="/equipment/">Other equipment</a></li>
+        <li><a href="/repairs/">Repairs</a></li>
+        <li><a href="/rentals/">Rentals</a></li>
+        <li><a href="/about/">About</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap legal">
+    <p class="small">
+      <a href="/terms/">Terms and conditions</a>
+      <a href="/privacy/">Privacy policy</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--section);
+    border-top: 2px solid var(--rosewood);
+    background: var(--sheet);
+    font-size: var(--fs-sm);
+  }
+  .foot {
+    display: grid;
+    gap: 1.5rem var(--gutter);
+    padding-block: 2rem 1rem;
+  }
+  @media (min-width: 700px) {
+    .foot {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+  }
+  .foot-name {
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .foot-head {
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .plain {
+    list-style: none;
+    margin: 0 0 0.75rem;
+    padding: 0;
+  }
+  .plain li {
+    padding: 0.1rem 0;
+  }
+  .legal {
+    border-top: 1px solid var(--rule);
+    padding-block: 0.75rem;
+  }
+  .legal p {
+    margin: 0;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+</style>

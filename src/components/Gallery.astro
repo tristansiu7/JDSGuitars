@@ -1,0 +1,124 @@
+---
+// Photo stack for a detail page: one main frame, thumbnails underneath.
+// Clicking a thumbnail swaps the main image. Without JS every photo is
+// still reachable because the thumbnails link to the full-size files.
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  photos: { src: ImageMetadata; alt: string }[];
+  name: string;
+}
+const { photos, name } = Astro.props;
+
+// Pre-render every main-size version so the swap is instant and each has
+// explicit dimensions.
+const mains = await Promise.all(
+  photos.map((p) =>
+    getImage({ src: p.src, width: 960, height: 1200, fit: 'cover', format: 'webp', widths: [480, 720, 960, 1440], sizes: '(min-width: 900px) 560px, 100vw' })
+  )
+);
+const fulls = await Promise.all(photos.map((p) => getImage({ src: p.src, width: 2000, format: 'webp' })));
+---
+
+{
+  photos.length === 0 ? (
+    <div class="frame frame-empty" role="img" aria-label={`No photos of the ${name} yet`}>
+      <p>Photos to come. Message us and we will send some.</p>
+    </div>
+  ) : (
+    <div class="gallery" data-gallery>
+      <figure class="frame main">
+        <img
+          src={mains[0].src}
+          srcset={mains[0].srcSet.attribute}
+          sizes="(min-width: 900px) 560px, 100vw"
+          width={mains[0].attributes.width}
+          height={mains[0].attributes.height}
+          alt={photos[0].alt}
+          fetchpriority="high"
+          decoding="async"
+          data-main
+        />
+        <figcaption class="visually-hidden" data-caption>{photos[0].alt}</figcaption>
+      </figure>
+      {photos.length > 1 && (
+        <ul class="thumbs" aria-label={`${photos.length} photos of the ${name}`}>
+          {photos.map((p, i) => (
+            <li>
+              <a
+                href={fulls[i].src}
+                class="thumb"
+                aria-current={i === 0 ? 'true' : undefined}
+                data-thumb
+                data-src={mains[i].src}
+                data-srcset={mains[i].srcSet.attribute}
+                data-alt={p.alt}
+              >
+                <Image src={p.src} width={160} height={200} fit="cover" format="webp" alt={`Photo ${i + 1}: ${p.alt}`} loading="lazy" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
+    const main = gallery.querySelector<HTMLImageElement>('[data-main]');
+    const caption = gallery.querySelector<HTMLElement>('[data-caption]');
+    const thumbs = gallery.querySelectorAll<HTMLAnchorElement>('[data-thumb]');
+    if (!main) return;
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener('click', (event) => {
+        event.preventDefault();
+        main.src = thumb.dataset.src ?? main.src;
+        main.srcset = thumb.dataset.srcset ?? '';
+        main.alt = thumb.dataset.alt ?? '';
+        if (caption) caption.textContent = thumb.dataset.alt ?? '';
+        thumbs.forEach((t) => t.removeAttribute('aria-current'));
+        thumb.setAttribute('aria-current', 'true');
+      });
+    });
+  });
+</script>
+
+<style>
+  .gallery {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .main {
+    margin: 0;
+  }
+  .thumbs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+    gap: 0.5rem;
+  }
+  .thumb {
+    display: block;
+    aspect-ratio: 4 / 5;
+    background: var(--bench-deep);
+    border: 2px solid transparent;
+    overflow: hidden;
+  }
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .thumb:hover,
+  .thumb[aria-current='true'] {
+    border-color: var(--rosewood);
+  }
+  .thumb:focus-visible {
+    border-color: var(--brass);
+    box-shadow: none;
+  }
+</style>

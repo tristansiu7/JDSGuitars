@@ -1,0 +1,64 @@
+---
+// Listing card used for guitars and equipment. Portrait frame, make and
+// model on separate lines, grade beside the price.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { formatPrice } from '../lib/format';
+import { GRADES, type Grade } from '../config';
+
+interface Props {
+  href: string;
+  make: string;
+  model: string;
+  price: number;
+  grade: Grade;
+  status: 'available' | 'on-hold' | 'sold';
+  photo?: { src: ImageMetadata; alt: string };
+  draft?: boolean;
+  // Extra data attributes for client-side filtering.
+  data?: Record<string, string | number>;
+  eager?: boolean;
+}
+const { href, make, model, price, grade, status, photo, draft = false, data = {}, eager = false } = Astro.props;
+const dataAttrs = Object.fromEntries(Object.entries(data).map(([k, v]) => [`data-${k}`, String(v)]));
+---
+
+<article class="card" {...dataAttrs}>
+  <div class="frame">
+    {photo ? (
+      <Image
+        src={photo.src}
+        alt={photo.alt}
+        width={480}
+        height={600}
+        widths={[240, 360, 480, 720]}
+        sizes="(min-width: 1000px) 280px, (min-width: 700px) 30vw, 45vw"
+        fit="cover"
+        format="webp"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    ) : (
+      <div class="frame-empty" aria-hidden="true"><p>Photos to come</p></div>
+    )}
+    {status === 'sold' && <span class="tag tag-sold corner">Sold</span>}
+    {status === 'on-hold' && <span class="tag corner">On hold</span>}
+    {draft && <span class="tag tag-draft corner">Draft</span>}
+  </div>
+  <div class="card-body">
+    <p class="card-make">{make}</p>
+    <h3 class="card-title"><a href={href}>{model}<span class="visually-hidden">, {make}</span></a></h3>
+    <div class="card-meta">
+      <span class="tag tag-grade">{GRADES[grade].label}</span>
+      <span class="card-price tnum">{status === 'sold' ? <del>{formatPrice(price)}</del> : formatPrice(price)}</span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .corner {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+</style>

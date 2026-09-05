@@ -1,0 +1,84 @@
+---
+// Price, status and condition grade for a detail page.
+import { formatPrice } from '../lib/format';
+import { GRADES, CONDITIONS, type Grade, type Condition } from '../config';
+
+interface Props {
+  price: number;
+  status: 'available' | 'on-hold' | 'sold';
+  grade: Grade;
+  condition: Condition;
+  summary?: string;
+  caseIncluded?: string;
+}
+const { price, status, grade, condition, summary, caseIncluded } = Astro.props;
+const g = GRADES[grade];
+---
+
+<div class="price-block">
+  <p class="price tnum">
+    {status === 'sold' ? <del>{formatPrice(price)}</del> : formatPrice(price)}
+    {status === 'sold' && <span class="tag tag-sold">Sold</span>}
+    {status === 'on-hold' && <span class="tag">On hold</span>}
+  </p>
+  <dl class="facts">
+    <div>
+      <dt>Condition</dt>
+      <dd><span class="tag tag-grade">{g.label}</span> <span class="muted">{CONDITIONS[condition]}</span></dd>
+    </div>
+    <div>
+      <dt class="visually-hidden">What that grade means</dt>
+      <dd class="small muted">{g.description}</dd>
+    </div>
+    {summary && (
+      <div>
+        <dt class="visually-hidden">Summary</dt>
+        <dd>{summary}</dd>
+      </div>
+    )}
+    {caseIncluded && (
+      <div>
+        <dt>Case</dt>
+        <dd>{caseIncluded}</dd>
+      </div>
+    )}
+  </dl>
+</div>
+
+<style>
+  .price-block {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .price {
+    margin: 0;
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    font-stretch: 110%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .price del {
+    color: var(--walnut);
+    font-weight: 400;
+  }
+  .facts {
+    margin: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .facts div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    align-items: baseline;
+  }
+  .facts dt {
+    font-weight: 600;
+  }
+  .facts dd {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,22 @@
+---
+// Two-column spec sheet. Rows with no value are not rendered.
+interface Props {
+  rows: [string, string | number | undefined | null][];
+  label?: string;
+}
+const { rows, label = 'Specifications' } = Astro.props;
+const shown = rows.filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '');
+---
+
+{
+  shown.length > 0 && (
+    <dl class="spec" aria-label={label}>
+      {shown.map(([k, v]) => (
+        <div>
+          <dt>{k}</dt>
+          <dd>{v}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}

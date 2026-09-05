@@ -1,0 +1,246 @@
+---
+// Shared structure for guitar and equipment detail pages. The guitar page
+// is the one designed first; the equipment page uses the same skeleton
+// with a lighter spec table.
+import Base from './Base.astro';
+import Gallery from '../components/Gallery.astro';
+import PriceBlock from '../components/PriceBlock.astro';
+import SpecTable from '../components/SpecTable.astro';
+import type { ImageMetadata } from 'astro';
+import type { Grade, Condition } from '../config';
+import { BUSINESS, SITE_URL } from '../config';
+import { isTodo } from '../lib/format';
+
+interface Props {
+  kind: 'guitar' | 'equipment';
+  crumbs: [string, string][];
+  make: string;
+  model: string;
+  name: string;
+  metaLine: string[];
+  ref: string;
+  price: number;
+  status: 'available' | 'on-hold' | 'sold';
+  grade: Grade;
+  condition: Condition;
+  summary?: string;
+  caseIncluded?: string;
+  photos: { src: ImageMetadata; alt: string }[];
+  specs: [string, string | number | undefined | null][];
+  setupNotes?: string;
+  repairHistory?: string;
+  draft?: boolean;
+  description: string;
+  ogImage?: string;
+  brand: string;
+  categoryLabel: string;
+}
+
+const p = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITE_URL).href;
+
+const product: Record<string, unknown> = {
+  '@type': 'Product',
+  name: p.name,
+  sku: p.ref,
+  brand: { '@type': 'Brand', name: p.brand },
+  category: p.categoryLabel,
+  description: p.description,
+  url: canonical,
+  image: p.ogImage ? new URL(p.ogImage, SITE_URL).href : undefined,
+  itemCondition:
+    p.condition === 'new'
+      ? 'https://schema.org/NewCondition'
+      : p.condition === 'open-box'
+        ? 'https://schema.org/RefurbishedCondition'
+        : 'https://schema.org/UsedCondition',
+  offers: {
+    '@type': 'Offer',
+    price: p.price,
+    priceCurrency: 'USD',
+    availability: p.status === 'available' ? 'https://schema.org/InStock' : p.status === 'on-hold' ? 'https://schema.org/LimitedAvailability' : 'https://schema.org/SoldOut',
+    itemCondition:
+      p.condition === 'new' ? 'https://schema.org/NewCondition' : p.condition === 'open-box' ? 'https://schema.org/RefurbishedCondition' : 'https://schema.org/UsedCondition',
+    url: canonical,
+    seller: { '@id': `${SITE_URL}/#business`, '@type': 'MusicStore', name: BUSINESS.name },
+  },
+};
+
+const messageHref = `/contact/?item=${encodeURIComponent(p.ref)}&name=${encodeURIComponent(p.name)}`;
+---
+
+<Base title={p.name} description={p.description} ogImage={p.ogImage} ogType="product" jsonLd={[product]} noindex={p.draft}>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        {p.crumbs.map(([href, label]) => (
+          <li><a href={href}>{label}</a></li>
+        ))}
+        <li aria-current="page">{p.model}</li>
+      </ol>
+    </nav>
+
+    <article class="detail">
+      <div class="photos">
+        <Gallery photos={p.photos} name={p.name} />
+      </div>
+
+      <header class="head">
+        {p.draft && <p><span class="tag tag-draft">Draft. Not in the built site.</span></p>}
+        <h1>
+          <span class="make">{p.make}</span>
+          <span class="model">{p.model}</span>
+        </h1>
+        <p class="meta-line">{p.metaLine.join(', ')}</p>
+        <PriceBlock price={p.price} status={p.status} grade={p.grade} condition={p.condition} summary={p.summary} caseIncluded={p.caseIncluded} />
+        <div class="actions">
+          {p.status === 'sold' ? (
+            <p>This one has sold. <a href={p.crumbs[p.crumbs.length - 1][0]}>See what else is in stock</a>, or <a href={messageHref}>ask if something similar is coming in</a>.</p>
+          ) : (
+            <a class="button" href={messageHref}>Message us about this {p.kind === 'guitar' ? 'guitar' : 'item'}</a>
+          )}
+          <p class="small muted">Reference {p.ref}. Quote it if you phone or email instead.</p>
+        </div>
+      </header>
+
+      <div class="notes">
+        <section aria-labelledby="condition-h">
+          <h2 id="condition-h">Condition</h2>
+          <div class="prose">
+            <slot name="condition" />
+          </div>
+        </section>
+        {p.setupNotes && (
+          <section aria-labelledby="setup-h">
+            <h2 id="setup-h">Setup notes</h2>
+            <p>{p.setupNotes}</p>
+          </section>
+        )}
+        {p.repairHistory && (
+          <section aria-labelledby="repair-h">
+            <h2 id="repair-h">Repair history</h2>
+            <p>{p.repairHistory}</p>
+          </section>
+        )}
+        <section aria-labelledby="buy-h" class="how">
+          <h2 id="buy-h">How buying works</h2>
+          <p>
+            Message about the {p.kind === 'guitar' ? 'guitar' : 'item'}, come and play it at {BUSINESS.address.street} in {BUSINESS.address.town}, and pay by {BUSINESS.paymentMethods.join(', ').replace(/, ([^,]*)$/, ' or $1')}.
+            Every {p.kind === 'guitar' ? 'guitar' : 'item'} is checked over before it is listed, and Jason helps with setup questions after you buy.
+            <a href="/terms/">Terms and conditions</a>.
+          </p>
+        </section>
+      </div>
+
+      <section class="specs" aria-labelledby="spec-h">
+        <h2 id="spec-h">Specifications</h2>
+        {p.specs.some(([, v]) => v) ? <SpecTable rows={p.specs} /> : <p class="muted">Full specifications to follow. Ask and we will send them.</p>}
+      </section>
+    </article>
+  </div>
+
+  <slot name="related" />
+</Base>
+
+<style>
+  .crumbs {
+    padding-block: 1rem;
+    font-size: var(--fs-sm);
+  }
+  .crumbs ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+  }
+  .crumbs li + li::before {
+    content: '/';
+    padding-inline: 0.5rem;
+    color: var(--walnut);
+  }
+  .crumbs [aria-current] {
+    color: var(--walnut);
+  }
+
+  .detail {
+    display: grid;
+    gap: 2rem var(--gutter);
+    grid-template-areas:
+      'photos'
+      'head'
+      'notes'
+      'specs';
+    padding-bottom: var(--section);
+  }
+  @media (min-width: 900px) {
+    .detail {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-areas:
+        'photos head'
+        'notes  specs';
+      gap: 3rem calc(var(--gutter) * 2);
+    }
+  }
+  .photos {
+    grid-area: photos;
+  }
+  .head {
+    grid-area: head;
+    display: grid;
+    gap: 1.25rem;
+    align-content: start;
+  }
+  .notes {
+    grid-area: notes;
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+  .specs {
+    grid-area: specs;
+  }
+
+  h1 {
+    display: grid;
+    margin: 0;
+  }
+  .make {
+    font-size: var(--fs-md);
+    font-stretch: 100%;
+    font-weight: 500;
+    color: var(--walnut);
+    letter-spacing: 0;
+  }
+  .model {
+    font-size: var(--fs-2xl);
+  }
+  @media (min-width: 900px) {
+    .model {
+      font-size: var(--fs-3xl);
+    }
+  }
+  .meta-line {
+    margin: 0;
+    color: var(--walnut);
+  }
+  .actions {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .actions .button {
+    justify-self: start;
+  }
+  .actions p {
+    margin: 0;
+  }
+  .how p {
+    margin: 0;
+  }
+  section h2 {
+    margin-bottom: 0.6rem;
+  }
+</style>
