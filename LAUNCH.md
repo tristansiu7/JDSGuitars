@@ -34,5 +34,6 @@ Results are recorded here each time the check is run against a production build 
 | 2026-09-05 | Guitars listing | Desktop | 100 | 100 | 100 | 100 |
 | 2026-09-05 | Guitars listing | Mobile | 100 | 100 | 100 | 100 |
 | 2026-09-05 | Guitar detail (draft example, `SHOW_DRAFTS=1` build) | Mobile | 100 | 100 | 100 | 69 (noindex on drafts; a live item has no noindex) |
+| 2026-09-06 | Home, with the shop photo banner and strip | Mobile | 98 | 100 | 100 | 100 |
 
 Run against a local production build with placeholder images. Re-run on the deployed site once real photos are in, since photo weight is the main thing that can move the performance score.

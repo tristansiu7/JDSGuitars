@@ -6,6 +6,22 @@ import { getGuitars, getEquipment, guitarUrl, equipmentUrl } from '../lib/items'
 import { BUSINESS, ADDRESS_LINE, MAP_LINK } from '../config';
 import { getCollection } from 'astro:content';
 import { formatPrice } from '../lib/format';
+import { Image, getImage } from 'astro:assets';
+import wall from '../assets/shop/guitar-wall.jpg';
+import fg800 from '../assets/shop/yamaha-fg800-unboxed.jpg';
+import fg850 from '../assets/shop/yamaha-fg850-unboxed.jpg';
+import headstocks from '../assets/shop/headstocks.jpg';
+import copley from '../assets/shop/copley-dreadnought.jpg';
+
+// Photos of the actual shop, supplied by Jason. Alt text describes what is in each.
+const banner = await getImage({ src: wall, widths: [480, 768, 1206], sizes: '100vw', fit: 'cover', format: 'webp', quality: 78 });
+
+const shopPhotos = [
+  { src: fg800, alt: 'Yamaha FG800 acoustic on a stand in the workshop, just out of its box, with a row of sunburst acoustics hanging behind it and a Vox amp to the right' },
+  { src: headstocks, alt: 'Headstocks of Fender, Ibanez, Copley, Epiphone and Sterling acoustics hanging from the wall rail, string lights along the timber' },
+  { src: fg850, alt: 'Yamaha FG850 mahogany acoustic on a stand, tags still on, in front of its shipping box' },
+  { src: copley, alt: 'Copley dreadnought acoustic on a stand in front of a tweed Fender amp, with a blue Yamaha and a sunburst acoustic behind' },
+];
 
 const guitars = (await getGuitars()).filter((g) => g.data.status !== 'sold');
 const gear = (await getEquipment()).filter((e) => e.data.status !== 'sold');
@@ -14,7 +30,21 @@ const featuredGear = gear.slice(0, 4);
 const setup = (await getCollection('repairs')).find((r) => r.id === 'setup');
 ---
 
-<Base title={BUSINESS.name} description={`${BUSINESS.shortDescription} Guitars in stock, a priced repair list, and rentals. ${ADDRESS_LINE}.`}>
+<Base title={BUSINESS.name} description={`${BUSINESS.shortDescription} Guitars in stock, a priced repair list, and rentals. ${ADDRESS_LINE}.`} preloadImage={{ src: banner.src, srcset: banner.srcSet.attribute, sizes: '100vw' }}>
+  <div class="banner">
+    <img
+      src={banner.src}
+      srcset={banner.srcSet.attribute}
+      sizes="100vw"
+      width={banner.attributes.width}
+      height={banner.attributes.height}
+      alt="The guitar wall at JDS Guitars: a dozen acoustic guitars hung along a timber rail on a blue wall, with boxed Yamahas and Fender amps beneath"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </div>
+
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
@@ -37,6 +67,21 @@ const setup = (await getCollection('repairs')).find((r) => r.id === 'setup');
         <p><a href="/contact/">Contact and directions</a></p>
       </div>
     </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="shop-h">
+    <div class="section-head">
+      <h2 id="shop-h">The shop</h2>
+      <a href="/about/">About Jason and the workshop</a>
+    </div>
+    <ul class="strip">
+      {shopPhotos.map((p) => (
+        <li class="frame">
+          <Image src={p.src} alt={p.alt} width={600} height={750} widths={[300, 450, 600]} sizes="(min-width: 900px) 280px, 45vw" fit="cover" format="webp" quality={78} loading="lazy" decoding="async" />
+        </li>
+      ))}
+    </ul>
+    <p class="strip-note">Guitars hang on the wall set up and ready to try. The boxes underneath are stock waiting for a setup before it is listed.</p>
   </section>
 
   <section class="wrap section" aria-labelledby="stock-h">
@@ -117,6 +162,34 @@ const setup = (await getCollection('repairs')).find((r) => r.id === 'setup');
 </Base>
 
 <style>
+  .banner {
+    background: var(--rosewood);
+    border-bottom: 2px solid var(--rosewood);
+  }
+  .banner img {
+    width: 100%;
+    height: clamp(260px, 44vw, 560px);
+    object-fit: cover;
+    object-position: center 32%;
+  }
+  .strip {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+  @media (min-width: 700px) {
+    .strip {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .strip-note {
+    margin: 1rem 0 0;
+    color: var(--walnut);
+    max-width: 60ch;
+  }
   .hero {
     background: var(--sheet);
     border-bottom: 1px solid var(--rule);

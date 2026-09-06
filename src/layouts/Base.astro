@@ -19,9 +19,11 @@ interface Props {
   // Extra JSON-LD objects to add to the page (e.g. Product on a detail page).
   jsonLd?: Record<string, unknown>[];
   noindex?: boolean;
+  // A hero image to preload so it is requested before the CSS finishes parsing.
+  preloadImage?: { src: string; srcset: string; sizes: string };
 }
 
-const { title, description, ogImage = '/og.png', ogType = 'website', jsonLd = [], noindex = false } = Astro.props;
+const { title, description, ogImage = '/og.png', ogType = 'website', jsonLd = [], noindex = false, preloadImage } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, SITE_URL).href;
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
@@ -62,6 +64,7 @@ if (BUSINESS.social.length) business.sameAs = BUSINESS.social.map((s) => s.url);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="preload" href={archivoUrl} as="font" type="font/woff2" crossorigin />
+    {preloadImage && <link rel="preload" as="image" href={preloadImage.src} imagesrcset={preloadImage.srcset} imagesizes={preloadImage.sizes} fetchpriority="high" />}
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {iconSet && <link rel="icon" href="/favicon.ico" sizes="32x32" />}
